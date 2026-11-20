@@ -1,9 +1,11 @@
+import logo from '../assets/Embalagens.png'
+
 function Header() {
   return (
     <header className="bg-white shadow">
       <nav className="mx-auto flex max-w-5xl items-center justify-between px-6 py-3">
         <a href="#inicio" className="flex items-center gap-3">
-          <img src="Embalagens.png" alt="Logo Nobre Embalagens" className="h-10 w-auto" />
+          <img src={logo} alt="Logo Nobre Embalagens" className="h-10 w-auto" />
           <span className="text-xl font-bold text-slate-900">Nobre Embalagens</span>
         </a>
 
