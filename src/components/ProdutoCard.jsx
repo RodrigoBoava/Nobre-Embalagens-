@@ -6,17 +6,21 @@ function ProdutoCard({ produto }) {
 
   return (
     <article className="flex flex-col overflow-hidden rounded-xl bg-white shadow-md">
-      <div className="aspect-4/3 bg-slate-200">
+      <div className="aspect-4/3 overflow-hidden bg-white">
         <img
           src={produto.imagem}
           alt={produto.nome}
-          className="h-full w-full object-cover"
+          className="h-full w-full object-contain p-4"
         />
       </div>
 
-      <div className="flex flex-1 flex-col p-5">
-        <h3 className="text-lg font-bold text-slate-900">{produto.nome}</h3>
-        <p className="mt-1 text-sm text-slate-600">{produto.descricao}</p>
+      <div className="flex flex-1 flex-col border-t border-slate-100 p-5">
+        <h3 className="line-clamp-2 min-h-[3.5rem] text-lg font-bold leading-7 text-slate-900">
+          {produto.nome}
+        </h3>
+        <p className="mt-1 line-clamp-3 min-h-[3.75rem] text-sm leading-5 text-slate-600">
+          {produto.descricao}
+        </p>
 
         <dl className="mt-4 space-y-1 text-sm">
           {produto.tecnicas.map((item) => (
