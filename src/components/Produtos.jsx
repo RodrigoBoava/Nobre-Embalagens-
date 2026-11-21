@@ -10,7 +10,7 @@ function Produtos() {
       <div className="text-center">
         <h2 className="text-4xl font-bold text-slate-900">Nossos produtos</h2>
         <p className="mt-2 text-slate-600">
-          Conheça nossas embalagens, com medidas e valores.
+          Conheça nossas embalagens e insumos, com medidas e valores.
         </p>
       </div>
 

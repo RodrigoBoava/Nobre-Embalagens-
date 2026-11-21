@@ -1,17 +1,80 @@
+import { useState } from 'react'
+
+function IconeSeta({ direcao }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4"
+      aria-hidden="true"
+    >
+      <path d={direcao === 'esquerda' ? 'M15 18l-6-6 6-6' : 'M9 18l6-6-6-6'} />
+    </svg>
+  )
+}
+
+const estiloSeta =
+  'absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow transition hover:bg-indigo-600 hover:text-white'
+
 function ProdutoCard({ produto }) {
+  const [fotoAtual, setFotoAtual] = useState(0)
+
+  // Aceita tanto "imagens: [...]" quanto o antigo "imagem: '...'"
+  const fotos = produto.imagens ?? (produto.imagem ? [produto.imagem] : [])
+  const temVariasFotos = fotos.length > 1
+
+  const proxima = () => setFotoAtual((fotoAtual + 1) % fotos.length)
+  const anterior = () => setFotoAtual((fotoAtual - 1 + fotos.length) % fotos.length)
+
   const precoFormatado = produto.preco.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
   })
 
   return (
-    <article className="flex flex-col overflow-hidden rounded-xl bg-white shadow-md">
-      <div className="aspect-4/3 overflow-hidden bg-white">
-        <img
-          src={produto.imagem}
-          alt={produto.nome}
-          className="h-full w-full object-contain p-4"
-        />
+    <article className="flex w-full flex-col overflow-hidden rounded-xl bg-white shadow-md">
+      <div className="relative aspect-4/3 overflow-hidden bg-white">
+        <div
+          className="flex h-full transition-transform duration-300 ease-in-out"
+          style={{ transform: `translateX(-${fotoAtual * 100}%)` }}
+        >
+          {fotos.map((foto, i) => (
+            <img
+              key={foto}
+              src={foto}
+              alt={`${produto.nome} - foto ${i + 1}`}
+              className="h-full w-full shrink-0 object-contain p-4"
+            />
+          ))}
+        </div>
+
+        {temVariasFotos && (
+          <>
+            <button onClick={anterior} aria-label="Foto anterior" className={`${estiloSeta} left-2`}>
+              <IconeSeta direcao="esquerda" />
+            </button>
+            <button onClick={proxima} aria-label="Próxima foto" className={`${estiloSeta} right-2`}>
+              <IconeSeta direcao="direita" />
+            </button>
+
+            <div className="absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1.5">
+              {fotos.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setFotoAtual(i)}
+                  aria-label={`Ver foto ${i + 1}`}
+                  className={`h-2 rounded-full transition-all ${
+                    i === fotoAtual ? 'w-5 bg-indigo-600' : 'w-2 bg-slate-300 hover:bg-slate-400'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col border-t border-slate-100 p-5">
