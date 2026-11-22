@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import { linkWhatsapp } from '../data/contato'
 
 function IconeSeta({ direcao }) {
   return (
@@ -18,10 +19,11 @@ function IconeSeta({ direcao }) {
 }
 
 const estiloSeta =
-  'absolute top-1/2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow transition hover:bg-indigo-600 hover:text-white'
+  'absolute top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white/90 text-slate-700 shadow transition hover:bg-indigo-600 hover:text-white'
 
 function ProdutoCard({ produto }) {
   const [fotoAtual, setFotoAtual] = useState(0)
+  const toqueX = useRef(null)
 
   // Aceita tanto "imagens: [...]" quanto o antigo "imagem: '...'"
   const fotos = produto.imagens ?? (produto.imagem ? [produto.imagem] : [])
@@ -30,6 +32,23 @@ function ProdutoCard({ produto }) {
   const proxima = () => setFotoAtual((fotoAtual + 1) % fotos.length)
   const anterior = () => setFotoAtual((fotoAtual - 1 + fotos.length) % fotos.length)
 
+  // Deslizar sobre a foto troca a foto, sem mexer no carrossel de fora
+  const aoTocar = (e) => {
+    if (!temVariasFotos) return
+    e.stopPropagation()
+    toqueX.current = e.touches[0].clientX
+  }
+
+  const aoSoltar = (e) => {
+    if (!temVariasFotos || toqueX.current === null) return
+    e.stopPropagation()
+    const diferenca = toqueX.current - e.changedTouches[0].clientX
+    toqueX.current = null
+    if (Math.abs(diferenca) < 40) return
+    if (diferenca > 0) proxima()
+    else anterior()
+  }
+
   const precoFormatado = produto.preco.toLocaleString('pt-BR', {
     style: 'currency',
     currency: 'BRL',
@@ -37,7 +56,11 @@ function ProdutoCard({ produto }) {
 
   return (
     <article className="flex w-full flex-col overflow-hidden rounded-xl bg-white shadow-md">
-      <div className="relative aspect-4/3 overflow-hidden bg-white">
+      <div
+        className="relative aspect-4/3 touch-pan-y overflow-hidden bg-white"
+        onTouchStart={aoTocar}
+        onTouchEnd={aoSoltar}
+      >
         <div
           className="flex h-full transition-transform duration-300 ease-in-out"
           style={{ transform: `translateX(-${fotoAtual * 100}%)` }}
@@ -47,6 +70,9 @@ function ProdutoCard({ produto }) {
               key={foto}
               src={foto}
               alt={`${produto.nome} - foto ${i + 1}`}
+              loading="lazy"
+              decoding="async"
+              draggable={false}
               className="h-full w-full shrink-0 object-contain p-4"
             />
           ))}
@@ -98,6 +124,15 @@ function ProdutoCard({ produto }) {
           {precoFormatado}
           <span className="text-sm font-normal text-slate-500"> / {produto.unidade}</span>
         </p>
+
+        <a
+          href={linkWhatsapp(`Olá! Gostaria de um orçamento: ${produto.nome}.`)}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-4 block rounded-lg bg-slate-900 px-4 py-2.5 text-center text-sm font-semibold text-white transition hover:bg-indigo-600"
+        >
+          Pedir orçamento
+        </a>
       </div>
     </article>
   )

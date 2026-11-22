@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import ProdutoCard from './ProdutoCard'
 
 function calcularCardsPorTela() {
@@ -24,12 +24,14 @@ function IconeSeta({ direcao }) {
   )
 }
 
+// Setas só aparecem a partir de md; no celular o cliente desliza com o dedo
 const estiloBotao =
-  'absolute top-1/2 z-10 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-md transition hover:border-indigo-600 hover:bg-indigo-600 hover:text-white'
+  'absolute top-1/2 z-10 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 shadow-md transition hover:border-indigo-600 hover:bg-indigo-600 hover:text-white md:flex'
 
 function Carrossel({ titulo, subtitulo, produtos }) {
   const [cardsPorTela, setCardsPorTela] = useState(calcularCardsPorTela)
   const [indice, setIndice] = useState(0)
+  const toqueX = useRef(null)
 
   useEffect(() => {
     const aoRedimensionar = () => setCardsPorTela(calcularCardsPorTela())
@@ -47,15 +49,32 @@ function Carrossel({ titulo, subtitulo, produtos }) {
   const avancar = () => setIndice(posicao >= ultimoIndice ? 0 : posicao + 1)
   const voltar = () => setIndice(posicao <= 0 ? ultimoIndice : posicao - 1)
 
+  const aoTocar = (e) => {
+    toqueX.current = e.touches[0].clientX
+  }
+
+  const aoSoltar = (e) => {
+    if (!precisaDeSetas || toqueX.current === null) return
+    const diferenca = toqueX.current - e.changedTouches[0].clientX
+    toqueX.current = null
+    if (Math.abs(diferenca) < 50) return
+    if (diferenca > 0) avancar()
+    else voltar()
+  }
+
   return (
-    <div className="mt-14 first:mt-0">
+    <div className="mt-12 first:mt-0 sm:mt-14">
       <div className="text-center">
         <h3 className="text-2xl font-bold text-slate-900">{titulo}</h3>
         {subtitulo && <p className="mt-1 text-slate-600">{subtitulo}</p>}
       </div>
 
-      <div className="relative mx-auto mt-8 max-w-6xl px-14">
-        <div className="overflow-hidden">
+      <div className="relative mx-auto mt-6 max-w-6xl sm:mt-8 md:px-14">
+        <div
+          className="touch-pan-y overflow-hidden"
+          onTouchStart={aoTocar}
+          onTouchEnd={aoSoltar}
+        >
           <div
             className={`flex transition-transform duration-500 ease-in-out ${
               precisaDeSetas ? '' : 'justify-center'
@@ -65,7 +84,7 @@ function Carrossel({ titulo, subtitulo, produtos }) {
             {produtos.map((produto) => (
               <div
                 key={produto.id}
-                className="flex shrink-0 px-3 pb-4"
+                className="flex shrink-0 px-1 pb-4 sm:px-3"
                 style={{ flex: `0 0 ${larguraCard}%` }}
               >
                 <ProdutoCard produto={produto} />
@@ -87,16 +106,20 @@ function Carrossel({ titulo, subtitulo, produtos }) {
       </div>
 
       {precisaDeSetas && (
-        <div className="mt-4 flex justify-center gap-2">
+        <div className="mt-2 flex justify-center">
           {Array.from({ length: ultimoIndice + 1 }).map((_, i) => (
             <button
               key={i}
               onClick={() => setIndice(i)}
               aria-label={`Ir para a posição ${i + 1}`}
-              className={`h-2.5 rounded-full transition-all ${
-                i === posicao ? 'w-6 bg-indigo-600' : 'w-2.5 bg-slate-300 hover:bg-slate-400'
-              }`}
-            />
+              className="p-1.5"
+            >
+              <span
+                className={`block h-2.5 rounded-full transition-all ${
+                  i === posicao ? 'w-6 bg-indigo-600' : 'w-2.5 bg-slate-300'
+                }`}
+              />
+            </button>
           ))}
         </div>
       )}
