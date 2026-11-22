@@ -3,7 +3,7 @@ export const produtos = [
     id: 1,
     categoria: 'caixas',
     nome: 'Caixa Redonda',
-    imagens: ['/redonda1.jpg', '/redonda2.jpg'],
+    imagens: ['/redonda1.jpg', '/redondapizza2.jpg', '/redondapizza3.jpg', '/redondapizza4.jpg', '/redonda2.jpg'],
     descricao: 'Caixa redonda de ótima qualidade, papel paraná, dura e resistente.',
     tecnicas: [
       { label: 'Medidas', valor: '35 x 35 x 4 cm' },
